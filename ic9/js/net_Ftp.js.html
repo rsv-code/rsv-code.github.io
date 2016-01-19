@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: net/Ftp.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: net/Ftp.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * Copyright 2016 Austin Lehman
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+"use strict";
+/*global Java, BaseObj, setDef, getEngine */
+
+/**
+ * FtpDirRec is the object that is provided in the results of 
+ * the Ftp.ls() call.
+ * @constructor
+ */
+function FtpDirRec() {
+    BaseObj.call(this);
+    this.name = "";
+    this.user = "";
+    this.group = "";
+    this.size = -1;
+    this.mTime = undefined;
+    this.isDir = false;
+    this.isLink = false;
+}
+FtpDirRec.prototype = new BaseObj();
+FtpDirRec.prototype.constructor = FtpDirRec;
+
+/**
+ * FTP connection constructor that takes connection information 
+ * as parameters.
+ * @param Host Is a String with the host to connect to.
+ * @param UserName Is a String with the user name to connect with. (Optional)
+ * @param Password Is a String with the password to connect with. (Optional)
+ * @param Port Is an int with the port number to connect to. (21) (Optional)
+ * @constructor
+ */
+function Ftp(Host, UserName, Password, Port) {
+    BaseObj.call(this);
+    UserName = setDef(UserName, "");
+    Password = setDef(Password, "");
+    Port = setDef(Port, 21);
+
+    var NativeFtp = Java.type("com.lehman.ic9.net.ftp");
+    this.native = new NativeFtp(getEngine(), Host, UserName, Password, Port);
+}
+Ftp.prototype = new BaseObj();
+
+/**
+ * Attempts to establish a connection to the remote host.
+ * @return Object instance.
+ */
+Ftp.prototype.connect = function () {
+    this.native.connect();
+    return this;
+};
+
+/**
+ * Disconnects from the remote host.
+ * @return Object instance.
+ */
+Ftp.prototype.disconnect = function () {
+    this.native.disconnect();
+    return this;
+};
+
+/**
+ * Changes remote directories with the provided new 
+ * directory.
+ * @param NewDir Is a String with the new remote directory.
+ * @return Object instance.
+ */
+Ftp.prototype.cd = function (NewDir) {
+    this.native.cd(NewDir);
+    return this;
+};
+
+/**
+ * Makes a new remote directory with the provided path string.
+ * @param DirToMake Is a String with the path to create the new directory.
+ * @return Object instance.
+ */
+Ftp.prototype.mkdir = function (DirToMake) {
+    this.native.mkdir(DirToMake);
+    return this;
+};
+
+/**
+ * Removes the remote directory with the provided path string.
+ * @param DirToRemove Is a String with the remote path to remove.
+ * @return Object instance.
+ */
+Ftp.prototype.rmdir = function (DirToRemove) {
+    this.native.rmdir(DirToRemove);
+    return this;
+};
+
+/**
+ * Uploads a local file with the provided source file name to the 
+ * remote with the destination file name.
+ * @param SrcFileName Is a String with the path of the local file to upload.
+ * @param DestFileName Is a String with the path to upload the file to.
+ * @return Object instance.
+ */
+Ftp.prototype.put = function (SrcFileName, DestFileName) {
+    this.native.put(SrcFileName, DestFileName);
+    return this;
+};
+
+/**
+ * Downloads a remote file with the provided source file name to the local 
+ * file system at the destination file name.
+ * @param SrcFileName Is a String with the remote file name to download.
+ * @param DestFileName Is a String with the local file name to save 
+ * the downloaded file to.
+ * @return Object instance.
+ */
+Ftp.prototype.get = function (SrcFileName, DestFileName) {
+    this.native.get(SrcFileName, DestFileName);
+    return this;
+};
+
+/**
+ * Renames a remote file or directory to the new provided destination name.
+ * @param SrcPath Is a String with the source file or directory name.
+ * @param DestPath Is a String with the destination file or directory name.
+ * @return Object instance.
+ */
+Ftp.prototype.rename = function (SrcPath, DestPath) {
+    this.native.rename(SrcPath, DestPath);
+    return this;
+};
+
+/**
+ * Removes the provided file.
+ * @param Path Is a String with the relative or absolute path of the file to remove.
+ * @return Object instance.
+ */
+Ftp.prototype.rm = function (Path) {
+    this.native.rm(Path);
+    return this;
+};
+
+/**
+ * Lists the contents of the directory of the provided path.
+ * This method returns a JS object with key-value pairs where the 
+ * key Is the file name and the value is a DirRec object with item 
+ * details.
+ * @param Path Is a String with the path to list contents of. (Optional)
+ * @return A JS object with key-value pairs.
+ */
+Ftp.prototype.ls = function (Path) {
+    Path = setDef(Path, null);
+    return this.native.ls(Path);
+};
+
+/**
+ * Gets the absolute path of the current remote working directory.
+ * @return A String with the working directory.
+ */
+Ftp.prototype.pwd = function () {
+    return this.native.pwd();
+};
+
+/**
+ * Checks to see if the SFTP session is connected.
+ * @return A boolean with true for connected and false for not.
+ */
+Ftp.prototype.isConnected = function () {
+    return this.native.isConnected();
+};
+
+/**
+ * Sets the connect timeout in milliseconds. (Default is 3000) This must 
+ * be set prior to calling connect or it has no effect.
+ * @param TimeoutMills Is an int with the connect timeout in milliseconds.
+ */
+Ftp.prototype.setConnectTimeout = function (TimeoutMills) {
+    this.native.setConnectTimeout(TimeoutMills);
+    return this;
+};
+
+/**
+ * Gets the connect timeout in milliseconds.
+ * @return An int with the connect timeout in milliseconds.
+ */
+Ftp.prototype.getConnectTimeout = function () {
+    return this.native.getConnectTimeout();
+};
+
+Ftp.prototype.constructor = Ftp;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="base64.html">base64</a></li><li><a href="BaseObj.html">BaseObj</a></li><li><a href="Browser.html">Browser</a></li><li><a href="Buffer.html">Buffer</a></li><li><a href="ByteArray.html">ByteArray</a></li><li><a href="Config.html">Config</a></li><li><a href="console.html">console</a></li><li><a href="Cookie.html">Cookie</a></li><li><a href="DirRec.html">DirRec</a></li><li><a href="file.html">file</a></li><li><a href="Ftp.html">Ftp</a></li><li><a href="FtpDirRec.html">FtpDirRec</a></li><li><a href="hex.html">hex</a></li><li><a href="Html.html">Html</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="HttpPart.html">HttpPart</a></li><li><a href="HttpServer.html">HttpServer</a></li><li><a href="HttpServerRequest.html">HttpServerRequest</a></li><li><a href="HttpServerResponse.html">HttpServerResponse</a></li><li><a href="HttpSession.html">HttpSession</a></li><li><a href="HttpWebsocket.html">HttpWebsocket</a></li><li><a href="Ic9Engine.html">Ic9Engine</a></li><li><a href="Ic9sh.html">Ic9sh</a></li><li><a href="Jdbc.html">Jdbc</a></li><li><a href="Ldap.html">Ldap</a></li><li><a href="Log.html">Log</a></li><li><a href="SavePoint.html">SavePoint</a></li><li><a href="Sftp.html">Sftp</a></li><li><a href="Sqlite.html">Sqlite</a></li><li><a href="Ssh.html">Ssh</a></li><li><a href="sys.html">sys</a></li><li><a href="Telnet.html">Telnet</a></li><li><a href="TestRunner.html">TestRunner</a></li><li><a href="TestSet.html">TestSet</a></li><li><a href="Thread.html">Thread</a></li><li><a href="Timer.html">Timer</a></li><li><a href="uuid.html">uuid</a></li><li><a href="WsCall.html">WsCall</a></li><li><a href="WsInterface.html">WsInterface</a></li><li><a href="WsSchemaNode.html">WsSchemaNode</a></li><li><a href="xml.html">xml</a></li></ul><h3>Namespaces</h3><ul><li><a href="ccolor.html">ccolor</a></li><li><a href="dataType.html">dataType</a></li><li><a href="holdability.html">holdability</a></li><li><a href="httpMethod.html">httpMethod</a></li><li><a href="ldapAuthType.html">ldapAuthType</a></li><li><a href="postType.html">postType</a></li><li><a href="threadState.html">threadState</a></li><li><a href="transIsolation.html">transIsolation</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$global">$global</a></li><li><a href="global.html#$ic9env">$ic9env</a></li><li><a href="global.html#$shell">$shell</a></li><li><a href="global.html#assert">assert</a></li><li><a href="global.html#assertArray">assertArray</a></li><li><a href="global.html#assertBool">assertBool</a></li><li><a href="global.html#assertFunction">assertFunction</a></li><li><a href="global.html#assertInt">assertInt</a></li><li><a href="global.html#assertNull">assertNull</a></li><li><a href="global.html#assertNumber">assertNumber</a></li><li><a href="global.html#assertObject">assertObject</a></li><li><a href="global.html#assertString">assertString</a></li><li><a href="global.html#ByteBuffer">ByteBuffer</a></li><li><a href="global.html#clearInterval">clearInterval</a></li><li><a href="global.html#clearTimeout">clearTimeout</a></li><li><a href="global.html#contains">contains</a></li><li><a href="global.html#getEngine">getEngine</a></li><li><a href="global.html#include">include</a></li><li><a href="global.html#isArr">isArr</a></li><li><a href="global.html#isBool">isBool</a></li><li><a href="global.html#isDef">isDef</a></li><li><a href="global.html#isFunct">isFunct</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObj">isObj</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#loadJar">loadJar</a></li><li><a href="global.html#loadJarsInPath">loadJarsInPath</a></li><li><a href="global.html#newBuffer">newBuffer</a></li><li><a href="global.html#newDate">newDate</a></li><li><a href="global.html#newHttpServerRequest">newHttpServerRequest</a></li><li><a href="global.html#newHttpServerResponse">newHttpServerResponse</a></li><li><a href="global.html#newHttpWebsocket">newHttpWebsocket</a></li><li><a href="global.html#newIc9sh">newIc9sh</a></li><li><a href="global.html#newJsList">newJsList</a></li><li><a href="global.html#newJsObject">newJsObject</a></li><li><a href="global.html#newSavePoint">newSavePoint</a></li><li><a href="global.html#print">print</a></li><li><a href="global.html#println">println</a></li><li><a href="global.html#setDef">setDef</a></li><li><a href="global.html#setInterval">setInterval</a></li><li><a href="global.html#setTimeout">setTimeout</a></li><li><a href="global.html#startsWith">startsWith</a></li><li><a href="global.html#toJavaList">toJavaList</a></li><li><a href="global.html#valueNodes">valueNodes</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Jan 15 2016 17:25:08 GMT-0800 (PST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

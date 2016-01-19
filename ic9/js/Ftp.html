@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: Ftp</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: Ftp</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>Ftp</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+
+    <h4 class="name" id="Ftp"><span class="type-signature"></span>new Ftp<span class="signature">(Host, UserName, Password, Port)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    FTP connection constructor that takes connection information 
+as parameters.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>Host</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the host to connect to.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>UserName</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the user name to connect with. (Optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>Password</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the password to connect with. (Optional)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>Port</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is an int with the port number to connect to. (21) (Optional)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line47">line 47</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="cd"><span class="type-signature"></span>cd<span class="signature">(NewDir)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Changes remote directories with the provided new 
+directory.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>NewDir</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the new remote directory.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line82">line 82</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Object instance.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="connect"><span class="type-signature"></span>connect<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Attempts to establish a connection to the remote host.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line62">line 62</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Object instance.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="disconnect"><span class="type-signature"></span>disconnect<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Disconnects from the remote host.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line71">line 71</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Object instance.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="get"><span class="type-signature"></span>get<span class="signature">(SrcFileName, DestFileName)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Downloads a remote file with the provided source file name to the local 
+file system at the destination file name.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>SrcFileName</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the remote file name to download.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>DestFileName</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the local file name to save 
+the downloaded file to.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line127">line 127</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Object instance.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getConnectTimeout"><span class="type-signature"></span>getConnectTimeout<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Gets the connect timeout in milliseconds.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line196">line 196</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    An int with the connect timeout in milliseconds.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="isConnected"><span class="type-signature"></span>isConnected<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Checks to see if the SFTP session is connected.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line178">line 178</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A boolean with true for connected and false for not.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="ls"><span class="type-signature"></span>ls<span class="signature">(Path)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Lists the contents of the directory of the provided path.
+This method returns a JS object with key-value pairs where the 
+key Is the file name and the value is a DirRec object with item 
+details.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>Path</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the path to list contents of. (Optional)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line161">line 161</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A JS object with key-value pairs.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="mkdir"><span class="type-signature"></span>mkdir<span class="signature">(DirToMake)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Makes a new remote directory with the provided path string.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>DirToMake</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the path to create the new directory.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line92">line 92</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Object instance.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="put"><span class="type-signature"></span>put<span class="signature">(SrcFileName, DestFileName)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Uploads a local file with the provided source file name to the 
+remote with the destination file name.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>SrcFileName</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the path of the local file to upload.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>DestFileName</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the path to upload the file to.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line114">line 114</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Object instance.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="pwd"><span class="type-signature"></span>pwd<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Gets the absolute path of the current remote working directory.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line170">line 170</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A String with the working directory.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="rename"><span class="type-signature"></span>rename<span class="signature">(SrcPath, DestPath)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Renames a remote file or directory to the new provided destination name.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>SrcPath</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the source file or directory name.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>DestPath</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the destination file or directory name.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line138">line 138</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Object instance.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="rm"><span class="type-signature"></span>rm<span class="signature">(Path)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Removes the provided file.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>Path</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the relative or absolute path of the file to remove.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line148">line 148</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Object instance.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="rmdir"><span class="type-signature"></span>rmdir<span class="signature">(DirToRemove)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Removes the remote directory with the provided path string.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>DirToRemove</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is a String with the remote path to remove.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line102">line 102</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Object instance.
+</div>
+
+
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="setConnectTimeout"><span class="type-signature"></span>setConnectTimeout<span class="signature">(TimeoutMills)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Sets the connect timeout in milliseconds. (Default is 3000) This must 
+be set prior to calling connect or it has no effect.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>TimeoutMills</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Is an int with the connect timeout in milliseconds.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="net_Ftp.js.html">net/Ftp.js</a>, <a href="net_Ftp.js.html#line187">line 187</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="base64.html">base64</a></li><li><a href="BaseObj.html">BaseObj</a></li><li><a href="Browser.html">Browser</a></li><li><a href="Buffer.html">Buffer</a></li><li><a href="ByteArray.html">ByteArray</a></li><li><a href="Config.html">Config</a></li><li><a href="console.html">console</a></li><li><a href="Cookie.html">Cookie</a></li><li><a href="DirRec.html">DirRec</a></li><li><a href="file.html">file</a></li><li><a href="Ftp.html">Ftp</a></li><li><a href="FtpDirRec.html">FtpDirRec</a></li><li><a href="hex.html">hex</a></li><li><a href="Html.html">Html</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="HttpPart.html">HttpPart</a></li><li><a href="HttpServer.html">HttpServer</a></li><li><a href="HttpServerRequest.html">HttpServerRequest</a></li><li><a href="HttpServerResponse.html">HttpServerResponse</a></li><li><a href="HttpSession.html">HttpSession</a></li><li><a href="HttpWebsocket.html">HttpWebsocket</a></li><li><a href="Ic9Engine.html">Ic9Engine</a></li><li><a href="Ic9sh.html">Ic9sh</a></li><li><a href="Jdbc.html">Jdbc</a></li><li><a href="Ldap.html">Ldap</a></li><li><a href="Log.html">Log</a></li><li><a href="SavePoint.html">SavePoint</a></li><li><a href="Sftp.html">Sftp</a></li><li><a href="Sqlite.html">Sqlite</a></li><li><a href="Ssh.html">Ssh</a></li><li><a href="sys.html">sys</a></li><li><a href="Telnet.html">Telnet</a></li><li><a href="TestRunner.html">TestRunner</a></li><li><a href="TestSet.html">TestSet</a></li><li><a href="Thread.html">Thread</a></li><li><a href="Timer.html">Timer</a></li><li><a href="uuid.html">uuid</a></li><li><a href="WsCall.html">WsCall</a></li><li><a href="WsInterface.html">WsInterface</a></li><li><a href="WsSchemaNode.html">WsSchemaNode</a></li><li><a href="xml.html">xml</a></li></ul><h3>Namespaces</h3><ul><li><a href="ccolor.html">ccolor</a></li><li><a href="dataType.html">dataType</a></li><li><a href="holdability.html">holdability</a></li><li><a href="httpMethod.html">httpMethod</a></li><li><a href="ldapAuthType.html">ldapAuthType</a></li><li><a href="postType.html">postType</a></li><li><a href="threadState.html">threadState</a></li><li><a href="transIsolation.html">transIsolation</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$global">$global</a></li><li><a href="global.html#$ic9env">$ic9env</a></li><li><a href="global.html#$shell">$shell</a></li><li><a href="global.html#assert">assert</a></li><li><a href="global.html#assertArray">assertArray</a></li><li><a href="global.html#assertBool">assertBool</a></li><li><a href="global.html#assertFunction">assertFunction</a></li><li><a href="global.html#assertInt">assertInt</a></li><li><a href="global.html#assertNull">assertNull</a></li><li><a href="global.html#assertNumber">assertNumber</a></li><li><a href="global.html#assertObject">assertObject</a></li><li><a href="global.html#assertString">assertString</a></li><li><a href="global.html#ByteBuffer">ByteBuffer</a></li><li><a href="global.html#clearInterval">clearInterval</a></li><li><a href="global.html#clearTimeout">clearTimeout</a></li><li><a href="global.html#contains">contains</a></li><li><a href="global.html#getEngine">getEngine</a></li><li><a href="global.html#include">include</a></li><li><a href="global.html#isArr">isArr</a></li><li><a href="global.html#isBool">isBool</a></li><li><a href="global.html#isDef">isDef</a></li><li><a href="global.html#isFunct">isFunct</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObj">isObj</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#loadJar">loadJar</a></li><li><a href="global.html#loadJarsInPath">loadJarsInPath</a></li><li><a href="global.html#newBuffer">newBuffer</a></li><li><a href="global.html#newDate">newDate</a></li><li><a href="global.html#newHttpServerRequest">newHttpServerRequest</a></li><li><a href="global.html#newHttpServerResponse">newHttpServerResponse</a></li><li><a href="global.html#newHttpWebsocket">newHttpWebsocket</a></li><li><a href="global.html#newIc9sh">newIc9sh</a></li><li><a href="global.html#newJsList">newJsList</a></li><li><a href="global.html#newJsObject">newJsObject</a></li><li><a href="global.html#newSavePoint">newSavePoint</a></li><li><a href="global.html#print">print</a></li><li><a href="global.html#println">println</a></li><li><a href="global.html#setDef">setDef</a></li><li><a href="global.html#setInterval">setInterval</a></li><li><a href="global.html#setTimeout">setTimeout</a></li><li><a href="global.html#startsWith">startsWith</a></li><li><a href="global.html#toJavaList">toJavaList</a></li><li><a href="global.html#valueNodes">valueNodes</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Jan 15 2016 17:25:08 GMT-0800 (PST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

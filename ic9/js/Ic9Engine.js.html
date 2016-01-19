@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Ic9Engine.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Ic9Engine.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * Copyright 2016 Austin Lehman
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+"use strict";
+/*global Java, isDef, setDef, BaseObj */
+
+/**
+ * ic9engine object allows for other scripts to be 
+ * evaluated from outside the main script instance.
+ * @constructor
+ */
+function Ic9Engine() {
+    BaseObj.call(this);
+    var NativeIc9Engine = Java.type("com.lehman.ic9.ic9engine");
+    this.native = new NativeIc9Engine();
+}
+Ic9Engine.prototype = new BaseObj();
+
+/*jslint evil: true*/
+/**
+ * Evaluates the provided script with the provided 
+ * file name.
+ * @param FileName is a string with the file name to set for the script.
+ * @param ScriptString is a string with the script contents to evaluate.
+ */
+Ic9Engine.prototype.eval = function (FileName, ScriptString) {
+    if (!isDef(FileName)) { throw ("Ic9Engine.eval(): File name not set."); }
+    if (!isDef(ScriptString)) { throw ("Ic9Engine.eval(): Script contents not set."); }
+
+    // If all still good eval the provided script.
+    return this.native.eval(FileName, ScriptString);
+};
+/*jslint evil: false*/
+
+/**
+ * Invokes a function this's defined within the Ic9Engine.
+ * @param FunctName is a string with the function to invoke.
+ * @param ... Any number of parameters to pass to the invoked function.
+ * @return A item this is the return value from the invoked function.
+ */
+Ic9Engine.prototype.invokeFunction = function () {
+    var FunctionName = null, Args = [], i;
+    if (arguments.length > 0) {
+        FunctionName = arguments["0"];
+        if (arguments.length > 1) {
+            for (i = 1; i &lt; arguments.length; i += 1) { Args.push(arguments[i]); }
+        }
+    } else {
+        throw ("Ic9Engine.invokeFunction(): Expecting at least 1 argument with the function name to invoke.");
+    }
+
+    // If all still good invoke the function.
+    return this.native.invokeFunction(FunctionName, Args);
+};
+
+/**
+ * Invokes a method on the provided object with the name and passed arguments.
+ * @param TheObj is an instance of the native object.
+ * @param FunctionName is a String with the method name to invoke.
+ * @param args is an array of Objects this are the invoked function arguments.
+ * @return An Object return value returned from the invoked method.
+ */
+Ic9Engine.prototype.invokeMethod = function () {
+    var TheObj = null, FunctionName = null, Args = [], i;
+
+    if (arguments.length > 1) {
+        TheObj = arguments["0"];
+        FunctionName = arguments["1"];
+        if (arguments.length > 2) {
+            for (i = 2; i &lt; arguments.length; i += 1) { Args.push(arguments[i]); }
+        }
+    } else {
+        throw ("Ic9Engine.invokeMethod(): Expecting at least 2 arguments with the object and the function name to invoke.");
+    }
+
+    // If all still good invoke the function.
+    return this.native.invokeMethod(TheObj, FunctionName, Args);
+};
+
+/**
+ * Adds a variable with the provided key and value to the 
+ * global scope of this Ic9Engine.
+ * @param Key is a string with the key which is the variable name
+ * to set in the engine.
+ * @param Value is the value to assign to the variable.
+ * @return this
+ */
+Ic9Engine.prototype.put = function (Key, Value) {
+    if (!isDef(Key)) { throw ("Ic9Engine.put(): No key provided."); }
+    if (!isDef(Value)) { throw ("Ic9Engine.put(): No value provided"); }
+    this.native.put(Key, Value);
+    return this;
+};
+
+/**
+ * Gets a global value with the provided key name.
+ * @param KeyName is a String with the key name.
+ * @return An object.
+ */
+Ic9Engine.prototype.get = function (Key) {
+    if (!isDef(Key)) { throw ("Ic9Engine.get(): No key provided."); }
+    return this.native.get(Key);
+};
+
+/**
+ * Instantiates a new javascript object and returns it's ScriptObjectMirror 
+ * object. this method envojes newJsObject from env.js. If null is provided 
+ * as the name a generic javascript object is created and returned.
+ * @param Name A String with the name of the object to create or null.
+ * @return A new ScriptObjectMirror as Map&lt;String,Object> object.
+ */
+Ic9Engine.prototype.newObj = function (Name) {
+    return this.native.newObj(setDef(Name, null));
+};
+
+/**
+ * Creates a new javascript list.
+ * @return An object with the native JS list.
+ */
+Ic9Engine.prototype.newList = function () {
+    return this.native.newList();
+};
+
+/**
+ * Gets the IC9 version string.
+ * @return A String with the IC9 version.
+ */
+Ic9Engine.prototype.getVersion = function () {
+    return this.native.getVersion();
+};
+
+Ic9Engine.prototype.constructor = Ic9Engine;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="base64.html">base64</a></li><li><a href="BaseObj.html">BaseObj</a></li><li><a href="Browser.html">Browser</a></li><li><a href="Buffer.html">Buffer</a></li><li><a href="ByteArray.html">ByteArray</a></li><li><a href="Config.html">Config</a></li><li><a href="console.html">console</a></li><li><a href="Cookie.html">Cookie</a></li><li><a href="DirRec.html">DirRec</a></li><li><a href="file.html">file</a></li><li><a href="Ftp.html">Ftp</a></li><li><a href="FtpDirRec.html">FtpDirRec</a></li><li><a href="hex.html">hex</a></li><li><a href="Html.html">Html</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="HttpPart.html">HttpPart</a></li><li><a href="HttpServer.html">HttpServer</a></li><li><a href="HttpServerRequest.html">HttpServerRequest</a></li><li><a href="HttpServerResponse.html">HttpServerResponse</a></li><li><a href="HttpSession.html">HttpSession</a></li><li><a href="HttpWebsocket.html">HttpWebsocket</a></li><li><a href="Ic9Engine.html">Ic9Engine</a></li><li><a href="Ic9sh.html">Ic9sh</a></li><li><a href="Jdbc.html">Jdbc</a></li><li><a href="Ldap.html">Ldap</a></li><li><a href="Log.html">Log</a></li><li><a href="SavePoint.html">SavePoint</a></li><li><a href="Sftp.html">Sftp</a></li><li><a href="Sqlite.html">Sqlite</a></li><li><a href="Ssh.html">Ssh</a></li><li><a href="sys.html">sys</a></li><li><a href="Telnet.html">Telnet</a></li><li><a href="TestRunner.html">TestRunner</a></li><li><a href="TestSet.html">TestSet</a></li><li><a href="Thread.html">Thread</a></li><li><a href="Timer.html">Timer</a></li><li><a href="uuid.html">uuid</a></li><li><a href="WsCall.html">WsCall</a></li><li><a href="WsInterface.html">WsInterface</a></li><li><a href="WsSchemaNode.html">WsSchemaNode</a></li><li><a href="xml.html">xml</a></li></ul><h3>Namespaces</h3><ul><li><a href="ccolor.html">ccolor</a></li><li><a href="dataType.html">dataType</a></li><li><a href="holdability.html">holdability</a></li><li><a href="httpMethod.html">httpMethod</a></li><li><a href="ldapAuthType.html">ldapAuthType</a></li><li><a href="postType.html">postType</a></li><li><a href="threadState.html">threadState</a></li><li><a href="transIsolation.html">transIsolation</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$global">$global</a></li><li><a href="global.html#$ic9env">$ic9env</a></li><li><a href="global.html#$shell">$shell</a></li><li><a href="global.html#assert">assert</a></li><li><a href="global.html#assertArray">assertArray</a></li><li><a href="global.html#assertBool">assertBool</a></li><li><a href="global.html#assertFunction">assertFunction</a></li><li><a href="global.html#assertInt">assertInt</a></li><li><a href="global.html#assertNull">assertNull</a></li><li><a href="global.html#assertNumber">assertNumber</a></li><li><a href="global.html#assertObject">assertObject</a></li><li><a href="global.html#assertString">assertString</a></li><li><a href="global.html#ByteBuffer">ByteBuffer</a></li><li><a href="global.html#clearInterval">clearInterval</a></li><li><a href="global.html#clearTimeout">clearTimeout</a></li><li><a href="global.html#contains">contains</a></li><li><a href="global.html#getEngine">getEngine</a></li><li><a href="global.html#include">include</a></li><li><a href="global.html#isArr">isArr</a></li><li><a href="global.html#isBool">isBool</a></li><li><a href="global.html#isDef">isDef</a></li><li><a href="global.html#isFunct">isFunct</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObj">isObj</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#loadJar">loadJar</a></li><li><a href="global.html#loadJarsInPath">loadJarsInPath</a></li><li><a href="global.html#newBuffer">newBuffer</a></li><li><a href="global.html#newDate">newDate</a></li><li><a href="global.html#newHttpServerRequest">newHttpServerRequest</a></li><li><a href="global.html#newHttpServerResponse">newHttpServerResponse</a></li><li><a href="global.html#newHttpWebsocket">newHttpWebsocket</a></li><li><a href="global.html#newIc9sh">newIc9sh</a></li><li><a href="global.html#newJsList">newJsList</a></li><li><a href="global.html#newJsObject">newJsObject</a></li><li><a href="global.html#newSavePoint">newSavePoint</a></li><li><a href="global.html#print">print</a></li><li><a href="global.html#println">println</a></li><li><a href="global.html#setDef">setDef</a></li><li><a href="global.html#setInterval">setInterval</a></li><li><a href="global.html#setTimeout">setTimeout</a></li><li><a href="global.html#startsWith">startsWith</a></li><li><a href="global.html#toJavaList">toJavaList</a></li><li><a href="global.html#valueNodes">valueNodes</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Jan 15 2016 17:25:08 GMT-0800 (PST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
