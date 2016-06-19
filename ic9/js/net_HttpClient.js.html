@@ -75,6 +75,9 @@ function HttpClient(UrlString) {
 
     // Container for cookies.
     this.cookies = [];
+    
+    // Container for headers.
+    this.headers = {};
 
     // The native Java object.
     this.native = null;
@@ -174,12 +177,114 @@ HttpClient.prototype.postString = function (PostTypeStr, Obj, ContentType) {
  * @return A Javascript object with the response.
  */
 HttpClient.prototype.postBinary = function (PostTypeStr, Obj, ContentType) {
-    return this.native.postString(PostTypeStr, Obj, ContentType);
+    return this.native.postBinary(PostTypeStr, Obj, ContentType);
 };
+
+/**
+ * Performs a HTTP PUT call and returns the results of the call as 
+ * a String. The result object sets the response body as the 'content' 
+ * property of the result object.
+ * &lt;br>&lt;br>
+ * 
+ * URL_ENCODED: When post type is set as url_encoded it is expected this 
+ * the provided object is a JS object with properties set as key/value 
+ * pairs to be used as the post parameters. In this case ContentType argument 
+ * is ignored.
+ * &lt;br>&lt;br>
+ * 
+ * MULTIPART: When post type is set as multipart it is expected this the 
+ * provided object is an object/map where the values are HttpPart JS objects. 
+ * (See net/HttpPart.js for details.) For each part provided, only the 'name' 
+ * and 'data' properties need to be set, and the 'data' property is expected 
+ * to be a Java byte[]. In this case the ContentType argument is ignored.
+ * &lt;br>&lt;br>
+ * 
+ * CUSTOM: When the post type is set at custom it is expected this the provided 
+ * object is either a plain String or a JS Buffer object. The Obj String or 
+ * Buffer object is written as the body of the request and the ContentType 
+ * argument must be set. Use this for example when you want to post JSON data. 
+ * In this case you'd set the Obj as the JSON encoded string and then set 
+ * ContentType to 'application/json'.
+ * 
+ * @param PostTypeStr A String with the post type. (See postType for options.)
+ * @param Obj Is an Object. (See above for details.)
+ * @param ContentType is a String with the request content type.
+ * @return A Javascript object with the response.
+ */
+HttpClient.prototype.putString = function (PostTypeStr, Obj, ContentType) {
+    return this.native.putString(PostTypeStr, Obj, ContentType);
+};
+
+/**
+ * Performs a HTTP PUT call and returns the results of the call as 
+ * a Buffer object. The result object sets the response body as the 'content' 
+ * property of the result object.
+ * &lt;br>&lt;br>
+ * 
+ * URL_ENCODED: When post type is set as url_encoded it is expected this 
+ * the provided object is a JS object with properties set as key/value 
+ * pairs to be used as the post parameters. In this case ContentType argument 
+ * is ignored.
+ * &lt;br>&lt;br>
+ * 
+ * MULTIPART: When post type is set as multipart it is expected this the 
+ * provided object is an object/map where the values are HttpPart JS objects. 
+ * (See net/HttpPart.js for details.) For each part provided, only the 'name' 
+ * and 'data' properties need to be set, and the 'data' property is expected 
+ * to be a Java byte[]. In this case the ContentType argument is ignored.
+ * &lt;br>&lt;br>
+ * 
+ * CUSTOM: When the post type is set at custom it is expected this the provided 
+ * object is either a plain String or a JS Buffer object. The Obj String or 
+ * Buffer object is written as the body of the request and the ContentType 
+ * argument must be set. Use this for example when you want to post JSON data. 
+ * In this case you'd set the Obj as the JSON encoded string and then set 
+ * ContentType to 'application/json'.
+ * 
+ * @param PostTypeStr A String with the post type. (See postType for options.)
+ * @param Obj Is an Object. (See above for details.)
+ * @param ContentType is a String with the request content type.
+ * @return A Javascript object with the response.
+ */
+HttpClient.prototype.putBinary = function (PostTypeStr, Obj, ContentType) {
+    return this.native.putBinary(PostTypeStr, Obj, ContentType);
+};
+
+/**
+ * Performs a HTTP DELETE call and returns the results of the call as 
+ * a string. The result object sets the response body as the 'content' 
+ * property of the result object.
+ * @return A Javascript object with the response.
+ */
+HttpClient.prototype.deleteString = function () {
+    return this.native.deleteString();
+};
+
+/**
+ * Performs a HTTP DELETE call and returns the results of the call as 
+ * a Buffer object. The result object sets the response body as the 'content' 
+ * property of the result object.
+ * @return A Javascript object with the response.
+ */
+HttpClient.prototype.deleteBinary = function () {
+    return this.native.deleteBinary();
+};
+
+
+
 
 /*
  * GETTERS
  */
+
+/**
+ * Gets the flag for TCP no delay. (Nagle's Algorithm)
+ * @return A boolean with true for TCP no delay and false for not.
+ */
+HttpClient.prototype.getTcpNoDelay = function() {
+    return this.native.getTcpNoDelay();
+};
+
 /**
  * Gets a list of 'cookie' objects set for the client. (See 
  * http/cookie.js for details.)
@@ -274,6 +379,32 @@ HttpClient.prototype.getRelativeRedirectsAllowed = function () {
 /*
  * SETTERS
  */
+
+/**
+ * Sets the flag for TCP no delay. (Nagle's Algorithm) In order for this 
+ * flag to be effective this must be called prior to making the actual 
+ * HTTP request. The default value is false.
+ * @param UseTcpNoDelay is a boolean with true for TCP no delay and 
+ * false for not.
+ * @return Object instance.
+ */
+HttpClient.prototype.setTcpNoDelay = function (UseTcpNoDelay) {
+    this.native.setTcpNoDelay(UseTcpNoDelay);
+    return this;
+};
+
+/**
+ * Sets a header key value pair. This is a shortcut to simply 
+ * setting a key/value pair on the obj.headers object.
+ * @param Key is a string with the header key to set.
+ * @param Value is a string with the header value to set.
+ * @return Object instance.
+ */
+HttpClient.prototype.set = function (Key, Value) {
+    this.headers[Key] = Value;
+    return this;
+};
+
 /**
  * Sets the credentials to use for basic authentication.
  * @param UserName is a String with the user name.
@@ -395,13 +526,13 @@ HttpClient.prototype.constructor = HttpClient;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="base64.html">base64</a></li><li><a href="BaseObj.html">BaseObj</a></li><li><a href="Browser.html">Browser</a></li><li><a href="Buffer.html">Buffer</a></li><li><a href="ByteArray.html">ByteArray</a></li><li><a href="Config.html">Config</a></li><li><a href="console.html">console</a></li><li><a href="Cookie.html">Cookie</a></li><li><a href="DirRec.html">DirRec</a></li><li><a href="file.html">file</a></li><li><a href="Ftp.html">Ftp</a></li><li><a href="FtpDirRec.html">FtpDirRec</a></li><li><a href="hex.html">hex</a></li><li><a href="Html.html">Html</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="HttpPart.html">HttpPart</a></li><li><a href="HttpServer.html">HttpServer</a></li><li><a href="HttpServerRequest.html">HttpServerRequest</a></li><li><a href="HttpServerResponse.html">HttpServerResponse</a></li><li><a href="HttpSession.html">HttpSession</a></li><li><a href="HttpWebsocket.html">HttpWebsocket</a></li><li><a href="Ic9Engine.html">Ic9Engine</a></li><li><a href="Ic9sh.html">Ic9sh</a></li><li><a href="Jdbc.html">Jdbc</a></li><li><a href="Ldap.html">Ldap</a></li><li><a href="Log.html">Log</a></li><li><a href="SavePoint.html">SavePoint</a></li><li><a href="Sftp.html">Sftp</a></li><li><a href="Sqlite.html">Sqlite</a></li><li><a href="Ssh.html">Ssh</a></li><li><a href="sys.html">sys</a></li><li><a href="Telnet.html">Telnet</a></li><li><a href="TestRunner.html">TestRunner</a></li><li><a href="TestSet.html">TestSet</a></li><li><a href="Thread.html">Thread</a></li><li><a href="Timer.html">Timer</a></li><li><a href="uuid.html">uuid</a></li><li><a href="WsCall.html">WsCall</a></li><li><a href="WsInterface.html">WsInterface</a></li><li><a href="WsSchemaNode.html">WsSchemaNode</a></li><li><a href="xml.html">xml</a></li></ul><h3>Namespaces</h3><ul><li><a href="ccolor.html">ccolor</a></li><li><a href="dataType.html">dataType</a></li><li><a href="holdability.html">holdability</a></li><li><a href="httpMethod.html">httpMethod</a></li><li><a href="ldapAuthType.html">ldapAuthType</a></li><li><a href="postType.html">postType</a></li><li><a href="threadState.html">threadState</a></li><li><a href="transIsolation.html">transIsolation</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$global">$global</a></li><li><a href="global.html#$ic9env">$ic9env</a></li><li><a href="global.html#$shell">$shell</a></li><li><a href="global.html#assert">assert</a></li><li><a href="global.html#assertArray">assertArray</a></li><li><a href="global.html#assertBool">assertBool</a></li><li><a href="global.html#assertFunction">assertFunction</a></li><li><a href="global.html#assertInt">assertInt</a></li><li><a href="global.html#assertNull">assertNull</a></li><li><a href="global.html#assertNumber">assertNumber</a></li><li><a href="global.html#assertObject">assertObject</a></li><li><a href="global.html#assertString">assertString</a></li><li><a href="global.html#ByteBuffer">ByteBuffer</a></li><li><a href="global.html#clearInterval">clearInterval</a></li><li><a href="global.html#clearTimeout">clearTimeout</a></li><li><a href="global.html#contains">contains</a></li><li><a href="global.html#getEngine">getEngine</a></li><li><a href="global.html#include">include</a></li><li><a href="global.html#isArr">isArr</a></li><li><a href="global.html#isBool">isBool</a></li><li><a href="global.html#isDef">isDef</a></li><li><a href="global.html#isFunct">isFunct</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObj">isObj</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#loadJar">loadJar</a></li><li><a href="global.html#loadJarsInPath">loadJarsInPath</a></li><li><a href="global.html#newBuffer">newBuffer</a></li><li><a href="global.html#newDate">newDate</a></li><li><a href="global.html#newHttpServerRequest">newHttpServerRequest</a></li><li><a href="global.html#newHttpServerResponse">newHttpServerResponse</a></li><li><a href="global.html#newHttpWebsocket">newHttpWebsocket</a></li><li><a href="global.html#newIc9sh">newIc9sh</a></li><li><a href="global.html#newJsList">newJsList</a></li><li><a href="global.html#newJsObject">newJsObject</a></li><li><a href="global.html#newSavePoint">newSavePoint</a></li><li><a href="global.html#print">print</a></li><li><a href="global.html#println">println</a></li><li><a href="global.html#setDef">setDef</a></li><li><a href="global.html#setInterval">setInterval</a></li><li><a href="global.html#setTimeout">setTimeout</a></li><li><a href="global.html#startsWith">startsWith</a></li><li><a href="global.html#toJavaList">toJavaList</a></li><li><a href="global.html#valueNodes">valueNodes</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Ant.html">Ant</a></li><li><a href="base64.html">base64</a></li><li><a href="BaseObj.html">BaseObj</a></li><li><a href="Buffer.html">Buffer</a></li><li><a href="ByteArray.html">ByteArray</a></li><li><a href="ByteBuffer.html">ByteBuffer</a></li><li><a href="Config.html">Config</a></li><li><a href="console.html">console</a></li><li><a href="Cookie.html">Cookie</a></li><li><a href="DirRec.html">DirRec</a></li><li><a href="Exception.html">Exception</a></li><li><a href="file.html">file</a></li><li><a href="Ftp.html">Ftp</a></li><li><a href="FtpDirRec.html">FtpDirRec</a></li><li><a href="Git.html">Git</a></li><li><a href="hash.html">hash</a></li><li><a href="hex.html">hex</a></li><li><a href="Html.html">Html</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="HttpPart.html">HttpPart</a></li><li><a href="HttpServer.html">HttpServer</a></li><li><a href="HttpServerRequest.html">HttpServerRequest</a></li><li><a href="HttpServerResponse.html">HttpServerResponse</a></li><li><a href="HttpSession.html">HttpSession</a></li><li><a href="HttpWebsocket.html">HttpWebsocket</a></li><li><a href="Ic9Engine.html">Ic9Engine</a></li><li><a href="Ic9sh.html">Ic9sh</a></li><li><a href="Ipm.html">Ipm</a></li><li><a href="Jar.html">Jar</a></li><li><a href="Javac.html">Javac</a></li><li><a href="Jdbc.html">Jdbc</a></li><li><a href="Ldap.html">Ldap</a></li><li><a href="Log.html">Log</a></li><li><a href="Mkdir.html">Mkdir</a></li><li><a href="Rmdir.html">Rmdir</a></li><li><a href="SavePoint.html">SavePoint</a></li><li><a href="Sftp.html">Sftp</a></li><li><a href="Sqlite.html">Sqlite</a></li><li><a href="Ssh.html">Ssh</a></li><li><a href="sys.html">sys</a></li><li><a href="Target.html">Target</a></li><li><a href="Telnet.html">Telnet</a></li><li><a href="TestRunner.html">TestRunner</a></li><li><a href="TestSet.html">TestSet</a></li><li><a href="Thread.html">Thread</a></li><li><a href="Timer.html">Timer</a></li><li><a href="udpPacket.html">udpPacket</a></li><li><a href="UdpSocket.html">UdpSocket</a></li><li><a href="uuid.html">uuid</a></li><li><a href="WsCall.html">WsCall</a></li><li><a href="WsInterface.html">WsInterface</a></li><li><a href="WsSchemaNode.html">WsSchemaNode</a></li><li><a href="xml.html">xml</a></li></ul><h3>Namespaces</h3><ul><li><a href="$ic9.valid.html">valid</a></li><li><a href="ccolor.html">ccolor</a></li><li><a href="dataType.html">dataType</a></li><li><a href="holdability.html">holdability</a></li><li><a href="httpMethod.html">httpMethod</a></li><li><a href="ldapAuthType.html">ldapAuthType</a></li><li><a href="postType.html">postType</a></li><li><a href="threadState.html">threadState</a></li><li><a href="transIsolation.html">transIsolation</a></li><li><a href="valueNodes.html">valueNodes</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$global">$global</a></li><li><a href="global.html#$ic9">$ic9</a></li><li><a href="global.html#$ic9env">$ic9env</a></li><li><a href="global.html#$shell">$shell</a></li><li><a href="global.html#assert">assert</a></li><li><a href="global.html#assertArray">assertArray</a></li><li><a href="global.html#assertBool">assertBool</a></li><li><a href="global.html#assertFunction">assertFunction</a></li><li><a href="global.html#assertInt">assertInt</a></li><li><a href="global.html#assertNull">assertNull</a></li><li><a href="global.html#assertNumber">assertNumber</a></li><li><a href="global.html#assertObject">assertObject</a></li><li><a href="global.html#assertString">assertString</a></li><li><a href="global.html#clearInterval">clearInterval</a></li><li><a href="global.html#clearTimeout">clearTimeout</a></li><li><a href="global.html#contains">contains</a></li><li><a href="global.html#getEngine">getEngine</a></li><li><a href="global.html#include">include</a></li><li><a href="global.html#includeJar">includeJar</a></li><li><a href="global.html#includeJarsInPath">includeJarsInPath</a></li><li><a href="global.html#isArr">isArr</a></li><li><a href="global.html#isBool">isBool</a></li><li><a href="global.html#isDef">isDef</a></li><li><a href="global.html#isFunct">isFunct</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObj">isObj</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#jIndent">jIndent</a></li><li><a href="global.html#jParse">jParse</a></li><li><a href="global.html#jStringify">jStringify</a></li><li><a href="global.html#newBuffer">newBuffer</a></li><li><a href="global.html#newDate">newDate</a></li><li><a href="global.html#newHttpServerRequest">newHttpServerRequest</a></li><li><a href="global.html#newHttpServerResponse">newHttpServerResponse</a></li><li><a href="global.html#newHttpWebsocket">newHttpWebsocket</a></li><li><a href="global.html#newIc9sh">newIc9sh</a></li><li><a href="global.html#newJsList">newJsList</a></li><li><a href="global.html#newJsObject">newJsObject</a></li><li><a href="global.html#newSavePoint">newSavePoint</a></li><li><a href="global.html#print">print</a></li><li><a href="global.html#println">println</a></li><li><a href="global.html#setDef">setDef</a></li><li><a href="global.html#setInterval">setInterval</a></li><li><a href="global.html#setTimeout">setTimeout</a></li><li><a href="global.html#startsWith">startsWith</a></li><li><a href="global.html#toJavaList">toJavaList</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Jan 15 2016 17:25:08 GMT-0800 (PST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Jun 18 2016 23:11:47 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

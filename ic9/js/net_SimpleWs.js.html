@@ -125,14 +125,14 @@ function WsInterface(Host, Name) {
     this.host = Host || "";
     this.name = Name || "";
 
-    this.calls = [];
+    this.calls = {};
 
     this.description = "";
 }
 WsInterface.prototype = new BaseObj();
 
 WsInterface.prototype.addCall = function (Name, ReqObj, ResObj) {
-    this.calls.push(new WsCall(Name, ReqObj, ResObj));
+    this.calls[Name] = new WsCall(Name, ReqObj, ResObj);
     return this;
 };
 
@@ -156,78 +156,80 @@ WsInterface.prototype.toWsdl = function () {
     };
     wsdlChildren.push(item);
 
-    for (i = 0; i &lt; this.calls.length; i += 1) {
-        call = this.calls[i];
-        // Request
-        item = {
-            name: "wsdl:message",
-            attr: { name: call.name + "Input" },
-            children: [
-                { name: "wsdl:part", attr: { name: call.reqObj.name, element: "tns:" + call.reqObj.name } }
-            ]
-        };
-        wsdlChildren.push(item);
-
-        // Response
-        item = {
-            name: "wsdl:message",
-            attr: { name: call.name + "Output" },
-            children: [
-                { name: "wsdl:part", attr: { name: call.resObj.name, element: "tns:" + call.resObj.name } }
-            ]
-        };
-        wsdlChildren.push(item);
-
-        // Port
-        item = {
-            name: "wsdl:portType",
-            attr: { name: call.name + "PortType" },
-            children: [
-                {
-                    name: "wsdl:operation",
-                    attr: { name: call.name },
-                    children: [
-                        { name: "wsdl:input", attr: { message: "tns:" + call.name + "Input" } },
-                        { name: "wsdl:output", attr: { message: "tns:" + call.name + "Output" } }
-                    ]
-                }
-            ]
-        };
-        wsdlChildren.push(item);
-
-        // Binding
-        item = {
-            name: "wsdl:binding",
-            attr: { name: call.name + "Binding", type: "tns:" + call.name + "PortType" },
-            children: [
-                { name: "soap:binding", attr: { style: "document", transport: "http://schemas.xmlsoap.org/soap/http" } },
-                {
-                    name: "wsdl:operation",
-                    attr: { name: call.name },
-                    children: [
-                        { name: "soap:operation", attr: { soapAction: call.name } },
-                        {
-                            name: "wsdl:input",
-                            children: [ { name: "soap:body", attr: { use: "literal" } } ]
-                        },
-                        {
-                            name: "wsdl:output",
-                            children: [ { name: "soap:body", attr: { use: "literal" } } ]
-                        }
-                    ]
-                }
-            ]
-        };
-        wsdlChildren.push(item);
-        
-        item = {
-            name: "wsdl:port",
-            attr: { name: call.name + "Port", binding: "tns:" + call.name + "Binding" },
-            children: [
-                { name: "soap:address", attr: { location: this.host } }
-            ]
-        };
-        ports.push(item);
+    for (var name in this.calls) {
+        if (this.calls.hasOwnProperty(name)) {
+            call = this.calls[name];
+            // Request
+            item = {
+                name: "wsdl:message",
+                attr: { name: call.name + "Input" },
+                children: [
+                    { name: "wsdl:part", attr: { name: call.reqObj.name, element: "tns:" + call.reqObj.name } }
+                ]
+            };
+            wsdlChildren.push(item);
+    
+            // Response
+            item = {
+                name: "wsdl:message",
+                attr: { name: call.name + "Output" },
+                children: [
+                    { name: "wsdl:part", attr: { name: call.resObj.name, element: "tns:" + call.resObj.name } }
+                ]
+            };
+            wsdlChildren.push(item);
+    
+            // Port
+            item = {
+                name: "wsdl:portType",
+                attr: { name: call.name + "PortType" },
+                children: [
+                    {
+                        name: "wsdl:operation",
+                        attr: { name: call.name },
+                        children: [
+                            { name: "wsdl:input", attr: { message: "tns:" + call.name + "Input" } },
+                            { name: "wsdl:output", attr: { message: "tns:" + call.name + "Output" } }
+                        ]
+                    }
+                ]
+            };
+            wsdlChildren.push(item);
+    
+            // Binding
+            item = {
+                name: "wsdl:binding",
+                attr: { name: call.name + "Binding", type: "tns:" + call.name + "PortType" },
+                children: [
+                    { name: "soap:binding", attr: { style: "document", transport: "http://schemas.xmlsoap.org/soap/http" } },
+                    {
+                        name: "wsdl:operation",
+                        attr: { name: call.name },
+                        children: [
+                            { name: "soap:operation", attr: { soapAction: call.name } },
+                            {
+                                name: "wsdl:input",
+                                children: [ { name: "soap:body", attr: { use: "literal" } } ]
+                            },
+                            {
+                                name: "wsdl:output",
+                                children: [ { name: "soap:body", attr: { use: "literal" } } ]
+                            }
+                        ]
+                    }
+                ]
+            };
+            wsdlChildren.push(item);
+            
+            item = {
+                name: "wsdl:port",
+                attr: { name: call.name + "Port", binding: "tns:" + call.name + "Binding" },
+                children: [
+                    { name: "soap:address", attr: { location: this.host } }
+                ]
+            };
+            ports.push(item);
+        }
     }
 
     ports.push({ name: "wsdl:documentation", value: this.description });
@@ -263,14 +265,16 @@ WsInterface.prototype.toWsdl = function () {
 WsInterface.prototype.getWsdlTypes = function () {
     var i, call, wsdl = [];
 
-    for (i = 0; i &lt; this.calls.length; i += 1) {
-        call = this.calls[i];
+    for (var name in this.calls) {
+        if (this.calls.hasOwnProperty(name)) {
+            call = this.calls[name];
 
-        // Request object.
-        wsdl.push(this.toWsdlSchemaNode(call.reqObj));
-
-        // Response object.
-        wsdl.push(this.toWsdlSchemaNode(call.resObj));
+            // Request object.
+            wsdl.push(this.toWsdlSchemaNode(call.reqObj));
+    
+            // Response object.
+            wsdl.push(this.toWsdlSchemaNode(call.resObj));
+        }
     }
 
     return wsdl;
@@ -323,10 +327,180 @@ WsInterface.prototype.toWsdlSchemaNode = function (SchemaNode) {
             }
         };
         if (SchemaNode.minOccurs >= 0) { wsdl.attr.minOccurs = SchemaNode.minOccurs; }
-        if (SchemaNode.maxOccurs === "unbounded" || SchemaNode.maxOccurs >= 0) { wsdl.addr.maxOccurs = SchemaNode.maxOccurs; }
+        if (SchemaNode.maxOccurs === "unbounded" || SchemaNode.maxOccurs >= 0) { wsdl.attr.maxOccurs = SchemaNode.maxOccurs; }
     }
 
     return wsdl;
+};
+
+WsInterface.prototype.parseRequest = function (CallName, Content) {
+    var i, soapns = '', wsdlns = '', match, name, body, reqXmlObj, cname = CallName.replace(/\"/g, "");
+    // First see if the call actually exists.
+    if (!isDef(this.calls[cname])) { throw ("WsInterface.parseRequest(): Call '" + cname + "' not found in interface."); }
+    
+    var xdata = Content;
+    if (!xdata.toLowerCase().startsWith("&lt;?xml")) { xdata = xml.prolog() + Content; }
+    var robj = xml.parse(xdata);
+    if (isDef(robj) &amp;&amp; isDef(robj.attr)) {
+        for (name in robj.attr) {
+            if (name.startsWith("xmlns:")) {
+                match = name.match(/xmlns:(.*)/);
+                if (match !== null &amp;&amp; match.length > 1) {
+                    if (robj.attr[name].startsWith("http://schemas.xmlsoap.org/soap/envelope")) {
+                        soapns = match[1];
+                    } else if (robj.attr[name].startsWith(this.host)) {
+                        wsdlns = match[1];
+                    }
+                }
+            }
+        }
+    } else { throw ("WsInterface.parseRequest(): Malformed SOAP request. Root node is missing or has no attributes."); }
+    
+    if (!isDef(soapns) || soapns.trim() === "") {
+        throw ("WsInterface.parseRequest(): Malformed request, SOAP namespace is missing or blank.");
+    }
+    
+    // We are disregarding the header at this point.
+    
+    // Soap body.
+    for (i = 0; i &lt; robj.children.length; i += 1) {
+        if (isDef(robj.children[i].name) &amp;&amp; robj.children[i].name === soapns + ":Body") {
+            body = robj.children[i];
+            break;
+        }
+    }
+    
+    if (isDef(body)) {
+        return this.getRequest([this.calls[cname].reqObj], body, wsdlns);
+    } else {
+        throw ("WsInterface.parseRequest(): Malformed request, " + soapns + ":Body section not found.");
+    }
+};
+
+WsInterface.prototype.getRequest = function (reqList, xmlObj, wsdlns) {
+    var i, j, found, ret = {}, wns = wsdlns + ":";
+    if (wsdlns.trim() === "") { wns = ""; }
+    
+    for (i = 0; i &lt; reqList.length; i += 1) {
+        var rreq = reqList[i];
+        var minocc = 1;
+        var maxocc = 1;
+        if (rreq.minOccurs !== -1) { minocc = rreq.minOccurs; }
+        if (rreq.maxOccurs === "unbounded") { maxocc = -1; }
+        
+        var xmlName = rreq.name;
+        if (rreq.type === "object") {
+            xmlName = wns + rreq.name;
+        }
+        found = this.getReqItemsByName(xmlObj.children, xmlName);
+        
+        if (found.length &lt; minocc) { throw ("WsInterface.parseRequest(): Node '" + xmlName + "' expecting at least " + minocc + " occurrences."); }
+        if (maxocc !== -1 &amp;&amp; found.length > maxocc) { throw ("WsInterface.parseRequest(): Node '" + xmlName + "' expecting no more than " + maxocc + " occurrences."); }
+        
+        if (maxocc !== 1) {
+            ret[rreq.name] = [];
+            for (j = 0; j &lt; found.length; j += 1) {
+                if (rreq.children.length === 0) { ret[rreq.name].push(found[j].value); }
+                else ret[rreq.name].push(this.getRequest(rreq.children, found[j], wsdlns));
+            }
+        } else {
+            if (rreq.children.length === 0) { if (found.length > 0) { ret[rreq.name] = found[0].value; } }
+            else ret[rreq.name] = this.getRequest(rreq.children, found[0], wsdlns);
+        }
+    }
+    return ret;
+};
+
+/**
+ * Gets a list of XML nodes by name in the current object.
+ */
+WsInterface.prototype.getReqItemsByName = function (xmlList, name) {
+    var i, ret = [], node;
+    
+    for (i = 0; i &lt; xmlList.length; i += 1) {
+        node = xmlList[i];
+        if (isDef(node.name) &amp;&amp; node.name === name) {
+            ret.push(node);
+        }
+    }
+    
+    return ret;
+};
+
+/**
+ * Creates the response XML string with the provided schema node 
+ * name and response object.
+ */
+WsInterface.prototype.createResponse = function (CallName, InObj) {
+    var i, retList, call, cname = CallName.replace(/\"/g, ""), envelope;
+    
+    if (!isDef(cname) || cname.trim() === "") { throw ("WsInterface.createResponse(): CallName is undefined or blank string."); }
+    if (!isDef(InObj)) { throw ("WsInterface.createResponse(): InObj is required."); }
+    
+    if (!isDef(this.calls[cname])) { throw ("WsInterface.parseRequest(): Call '" + cname + "' not found in interface."); }
+    
+    retList = this.buildResponse(this.calls[cname].resObj, InObj);
+    
+    envelope = {
+        name: "soapenv:Envelope",
+        attr: {
+            "xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
+            "xmlns:wsd": this.host
+        },
+        children: [ { name: "soapenv:Header" }, { name: "soapenv:Body", children: retList } ]
+    };
+    
+    // Convert to XML and return.
+    return xml.prolog() + xml.toXml(envelope);
+};
+
+// For each node in the 
+WsInterface.prototype.buildResponse = function (resObj, InObj) {
+    var minocc = 1, maxocc = 1, i, j, item, ret = [];
+    if (resObj.minOccurs !== -1) { minocc = rreq.minOccurs; }
+    if (resObj.maxOccurs === "unbounded") { maxocc = -1; }
+    
+    var found = this.getResItemsByName(InObj, resObj.name);
+    if (found.length &lt; minocc) { throw ("WsInterface.createResponse(): Node '" + resObj.name + "' is expecting at least " + minocc + " occurrences."); }
+    if (maxocc !== -1 &amp;&amp; found.length > maxocc) { throw ("WsInterface.createResponse(): Node '" + resObj.name + "' is expecting no more than " + maxocc + " occurrences."); }
+    
+    if (resObj.type === dataType.object) {
+        item = { name: "wsd:" + resObj.name, children: [] };
+        for (i = 0; i &lt; resObj.children.length; i += 1) {
+            for (j = 0; j &lt; found.length; j += 1) {
+                Array.prototype.push.apply(item.children, this.buildResponse(resObj.children[i], found[j]));
+            }
+        }
+        ret.push(item);
+    } else {
+        for (i = 0; i &lt; found.length; i += 1) {
+            ret.push({ name: resObj.name, value: "" + found[i] });
+        }
+    }
+    
+    return ret;
+};
+
+/**
+ * Gets a list of XML nodes by name in the current object.
+ */
+WsInterface.prototype.getResItemsByName = function (InObj, name) {
+    var i, ret = [], obj;
+    
+    if (isArr(InObj)) {
+        for (i = 0; i &lt; xmlList.length; i += 1) {
+            obj = InObj[i];
+            if (obj.hasOwnProperty(name)) {
+                ret.push(obj[name]);
+            }
+        }
+    } else {
+        if (InObj.hasOwnProperty(name)) {
+            ret.push(InObj[name]);
+        }
+    }
+    
+    return ret;
 };
 
 WsInterface.prototype.constructor = WsInterface;</code></pre>
@@ -339,13 +513,13 @@ WsInterface.prototype.constructor = WsInterface;</code></pre>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="base64.html">base64</a></li><li><a href="BaseObj.html">BaseObj</a></li><li><a href="Browser.html">Browser</a></li><li><a href="Buffer.html">Buffer</a></li><li><a href="ByteArray.html">ByteArray</a></li><li><a href="Config.html">Config</a></li><li><a href="console.html">console</a></li><li><a href="Cookie.html">Cookie</a></li><li><a href="DirRec.html">DirRec</a></li><li><a href="file.html">file</a></li><li><a href="Ftp.html">Ftp</a></li><li><a href="FtpDirRec.html">FtpDirRec</a></li><li><a href="hex.html">hex</a></li><li><a href="Html.html">Html</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="HttpPart.html">HttpPart</a></li><li><a href="HttpServer.html">HttpServer</a></li><li><a href="HttpServerRequest.html">HttpServerRequest</a></li><li><a href="HttpServerResponse.html">HttpServerResponse</a></li><li><a href="HttpSession.html">HttpSession</a></li><li><a href="HttpWebsocket.html">HttpWebsocket</a></li><li><a href="Ic9Engine.html">Ic9Engine</a></li><li><a href="Ic9sh.html">Ic9sh</a></li><li><a href="Jdbc.html">Jdbc</a></li><li><a href="Ldap.html">Ldap</a></li><li><a href="Log.html">Log</a></li><li><a href="SavePoint.html">SavePoint</a></li><li><a href="Sftp.html">Sftp</a></li><li><a href="Sqlite.html">Sqlite</a></li><li><a href="Ssh.html">Ssh</a></li><li><a href="sys.html">sys</a></li><li><a href="Telnet.html">Telnet</a></li><li><a href="TestRunner.html">TestRunner</a></li><li><a href="TestSet.html">TestSet</a></li><li><a href="Thread.html">Thread</a></li><li><a href="Timer.html">Timer</a></li><li><a href="uuid.html">uuid</a></li><li><a href="WsCall.html">WsCall</a></li><li><a href="WsInterface.html">WsInterface</a></li><li><a href="WsSchemaNode.html">WsSchemaNode</a></li><li><a href="xml.html">xml</a></li></ul><h3>Namespaces</h3><ul><li><a href="ccolor.html">ccolor</a></li><li><a href="dataType.html">dataType</a></li><li><a href="holdability.html">holdability</a></li><li><a href="httpMethod.html">httpMethod</a></li><li><a href="ldapAuthType.html">ldapAuthType</a></li><li><a href="postType.html">postType</a></li><li><a href="threadState.html">threadState</a></li><li><a href="transIsolation.html">transIsolation</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$global">$global</a></li><li><a href="global.html#$ic9env">$ic9env</a></li><li><a href="global.html#$shell">$shell</a></li><li><a href="global.html#assert">assert</a></li><li><a href="global.html#assertArray">assertArray</a></li><li><a href="global.html#assertBool">assertBool</a></li><li><a href="global.html#assertFunction">assertFunction</a></li><li><a href="global.html#assertInt">assertInt</a></li><li><a href="global.html#assertNull">assertNull</a></li><li><a href="global.html#assertNumber">assertNumber</a></li><li><a href="global.html#assertObject">assertObject</a></li><li><a href="global.html#assertString">assertString</a></li><li><a href="global.html#ByteBuffer">ByteBuffer</a></li><li><a href="global.html#clearInterval">clearInterval</a></li><li><a href="global.html#clearTimeout">clearTimeout</a></li><li><a href="global.html#contains">contains</a></li><li><a href="global.html#getEngine">getEngine</a></li><li><a href="global.html#include">include</a></li><li><a href="global.html#isArr">isArr</a></li><li><a href="global.html#isBool">isBool</a></li><li><a href="global.html#isDef">isDef</a></li><li><a href="global.html#isFunct">isFunct</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObj">isObj</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#loadJar">loadJar</a></li><li><a href="global.html#loadJarsInPath">loadJarsInPath</a></li><li><a href="global.html#newBuffer">newBuffer</a></li><li><a href="global.html#newDate">newDate</a></li><li><a href="global.html#newHttpServerRequest">newHttpServerRequest</a></li><li><a href="global.html#newHttpServerResponse">newHttpServerResponse</a></li><li><a href="global.html#newHttpWebsocket">newHttpWebsocket</a></li><li><a href="global.html#newIc9sh">newIc9sh</a></li><li><a href="global.html#newJsList">newJsList</a></li><li><a href="global.html#newJsObject">newJsObject</a></li><li><a href="global.html#newSavePoint">newSavePoint</a></li><li><a href="global.html#print">print</a></li><li><a href="global.html#println">println</a></li><li><a href="global.html#setDef">setDef</a></li><li><a href="global.html#setInterval">setInterval</a></li><li><a href="global.html#setTimeout">setTimeout</a></li><li><a href="global.html#startsWith">startsWith</a></li><li><a href="global.html#toJavaList">toJavaList</a></li><li><a href="global.html#valueNodes">valueNodes</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Ant.html">Ant</a></li><li><a href="base64.html">base64</a></li><li><a href="BaseObj.html">BaseObj</a></li><li><a href="Buffer.html">Buffer</a></li><li><a href="ByteArray.html">ByteArray</a></li><li><a href="ByteBuffer.html">ByteBuffer</a></li><li><a href="Config.html">Config</a></li><li><a href="console.html">console</a></li><li><a href="Cookie.html">Cookie</a></li><li><a href="DirRec.html">DirRec</a></li><li><a href="Exception.html">Exception</a></li><li><a href="file.html">file</a></li><li><a href="Ftp.html">Ftp</a></li><li><a href="FtpDirRec.html">FtpDirRec</a></li><li><a href="Git.html">Git</a></li><li><a href="hash.html">hash</a></li><li><a href="hex.html">hex</a></li><li><a href="Html.html">Html</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="HttpPart.html">HttpPart</a></li><li><a href="HttpServer.html">HttpServer</a></li><li><a href="HttpServerRequest.html">HttpServerRequest</a></li><li><a href="HttpServerResponse.html">HttpServerResponse</a></li><li><a href="HttpSession.html">HttpSession</a></li><li><a href="HttpWebsocket.html">HttpWebsocket</a></li><li><a href="Ic9Engine.html">Ic9Engine</a></li><li><a href="Ic9sh.html">Ic9sh</a></li><li><a href="Ipm.html">Ipm</a></li><li><a href="Jar.html">Jar</a></li><li><a href="Javac.html">Javac</a></li><li><a href="Jdbc.html">Jdbc</a></li><li><a href="Ldap.html">Ldap</a></li><li><a href="Log.html">Log</a></li><li><a href="Mkdir.html">Mkdir</a></li><li><a href="Rmdir.html">Rmdir</a></li><li><a href="SavePoint.html">SavePoint</a></li><li><a href="Sftp.html">Sftp</a></li><li><a href="Sqlite.html">Sqlite</a></li><li><a href="Ssh.html">Ssh</a></li><li><a href="sys.html">sys</a></li><li><a href="Target.html">Target</a></li><li><a href="Telnet.html">Telnet</a></li><li><a href="TestRunner.html">TestRunner</a></li><li><a href="TestSet.html">TestSet</a></li><li><a href="Thread.html">Thread</a></li><li><a href="Timer.html">Timer</a></li><li><a href="udpPacket.html">udpPacket</a></li><li><a href="UdpSocket.html">UdpSocket</a></li><li><a href="uuid.html">uuid</a></li><li><a href="WsCall.html">WsCall</a></li><li><a href="WsInterface.html">WsInterface</a></li><li><a href="WsSchemaNode.html">WsSchemaNode</a></li><li><a href="xml.html">xml</a></li></ul><h3>Namespaces</h3><ul><li><a href="$ic9.valid.html">valid</a></li><li><a href="ccolor.html">ccolor</a></li><li><a href="dataType.html">dataType</a></li><li><a href="holdability.html">holdability</a></li><li><a href="httpMethod.html">httpMethod</a></li><li><a href="ldapAuthType.html">ldapAuthType</a></li><li><a href="postType.html">postType</a></li><li><a href="threadState.html">threadState</a></li><li><a href="transIsolation.html">transIsolation</a></li><li><a href="valueNodes.html">valueNodes</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$global">$global</a></li><li><a href="global.html#$ic9">$ic9</a></li><li><a href="global.html#$ic9env">$ic9env</a></li><li><a href="global.html#$shell">$shell</a></li><li><a href="global.html#assert">assert</a></li><li><a href="global.html#assertArray">assertArray</a></li><li><a href="global.html#assertBool">assertBool</a></li><li><a href="global.html#assertFunction">assertFunction</a></li><li><a href="global.html#assertInt">assertInt</a></li><li><a href="global.html#assertNull">assertNull</a></li><li><a href="global.html#assertNumber">assertNumber</a></li><li><a href="global.html#assertObject">assertObject</a></li><li><a href="global.html#assertString">assertString</a></li><li><a href="global.html#clearInterval">clearInterval</a></li><li><a href="global.html#clearTimeout">clearTimeout</a></li><li><a href="global.html#contains">contains</a></li><li><a href="global.html#getEngine">getEngine</a></li><li><a href="global.html#include">include</a></li><li><a href="global.html#includeJar">includeJar</a></li><li><a href="global.html#includeJarsInPath">includeJarsInPath</a></li><li><a href="global.html#isArr">isArr</a></li><li><a href="global.html#isBool">isBool</a></li><li><a href="global.html#isDef">isDef</a></li><li><a href="global.html#isFunct">isFunct</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObj">isObj</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#jIndent">jIndent</a></li><li><a href="global.html#jParse">jParse</a></li><li><a href="global.html#jStringify">jStringify</a></li><li><a href="global.html#newBuffer">newBuffer</a></li><li><a href="global.html#newDate">newDate</a></li><li><a href="global.html#newHttpServerRequest">newHttpServerRequest</a></li><li><a href="global.html#newHttpServerResponse">newHttpServerResponse</a></li><li><a href="global.html#newHttpWebsocket">newHttpWebsocket</a></li><li><a href="global.html#newIc9sh">newIc9sh</a></li><li><a href="global.html#newJsList">newJsList</a></li><li><a href="global.html#newJsObject">newJsObject</a></li><li><a href="global.html#newSavePoint">newSavePoint</a></li><li><a href="global.html#print">print</a></li><li><a href="global.html#println">println</a></li><li><a href="global.html#setDef">setDef</a></li><li><a href="global.html#setInterval">setInterval</a></li><li><a href="global.html#setTimeout">setTimeout</a></li><li><a href="global.html#startsWith">startsWith</a></li><li><a href="global.html#toJavaList">toJavaList</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Jan 15 2016 17:25:08 GMT-0800 (PST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Jun 18 2016 23:11:47 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

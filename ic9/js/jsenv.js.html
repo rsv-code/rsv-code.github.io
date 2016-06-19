@@ -28,13 +28,13 @@
         <article>
             <pre class="prettyprint source linenums"><code>/*
  * Copyright 2016 Austin Lehman
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,7 +45,7 @@
 "use strict";
 /*global Java, isDef, setDef */
 
-var $global, $ic9env;
+var $global, $ic9env, $ic9;
 
 /** Set $global function. */
 $global = function () {
@@ -55,8 +55,11 @@ $global = function () {
 /** Set the global $ic9env flag. */
 $ic9env = true;
 
+/** Set the global $ic9 object. */
+$ic9 = {};
+
 /**
- * Sets a default value where none is set already. This 
+ * Sets a default value where none is set already. This
  * is useful in functions with optional parameters.
  * @param Variable is a var to check.
  * @param Value is the default value for the variable.
@@ -69,11 +72,11 @@ function setDef(Variable, Value) {
 }
 
 /**
- * Checks to see if the passed variable is defined. This 
+ * Checks to see if the passed variable is defined. This
  * is useful when requiring function parameters.
  * @param Variable is a variable to check.
  * @returns A boolean with true for defined and false
- * for undefined. 
+ * for undefined.
  */
 function isDef(Variable) {
     if (Variable === undefined) { return false; }
@@ -83,7 +86,7 @@ function isDef(Variable) {
 /**
  * Wrapper to check if a var is an array.
  * @param Variable is the var to check.
- * @returns A boolean with true if it's an array 
+ * @returns A boolean with true if it's an array
  * and false if not.
  */
 function isArr(Variable) {
@@ -159,8 +162,8 @@ function isFunct(Value) {
 }
 
 /**
- * Base object is a minimal ic9 object with a check to ensure current scope 
- * isn't global and with a toString method.
+ * Base object is a minimal ic9 object with a check to ensure current scope
+ * isn't global and with a jstr method.
  * @constructor
  */
 function BaseObj() {
@@ -251,12 +254,100 @@ function assertArray(Value) {
     if (!Array.isArray(Value)) { throw ("assertArray(): Assertion exception, not an array."); }
 }
 
+/**
+ * Turns any object or variable into a JSON string representation.
+ * @param Jobj Is a Javascript object to turn into a JSON string.
+ * @param Pretty Is a boolean with true for pretty print and false
+ * for not. (Optional) (Default is true.)
+ * @param Indent Is an integer with the number of tab indentations
+ * to start with. This only applies if Pretty === true. (Optional)
+ * (Default is 0.)
+ */
+function jStringify(Jobj, Pretty, Indent) {
+    var rstr = "", count = 0, key, tstr = "", i, tres;
+    //Jobj = setDef(Jobj, {});
+    Jobj = setDef(Jobj, null);
+    Pretty = setDef(Pretty, true);
+    Indent = setDef(Indent, 0);
+    if (Jobj === null) {
+        if (Pretty === true) { jIndent(Indent); }
+        rstr += "null";
+    } else if (isArr(Jobj)) {
+      for (i = 0; i &lt; Jobj.length; i += 1) {
+        if (Jobj[i] !== undefined) {
+          if (i > 0) { tstr += ","; }
+          if (Pretty === true &amp;&amp; i > 0) { tstr += "\n"; }
+          if (Pretty === true &amp;&amp; isArr(Jobj[i]) === false &amp;&amp; isObj(Jobj[i]) === false &amp;&amp; typeof(Jobj[i]) !== "object") { tstr += jIndent(Indent + 1); }
+          tstr += jStringify(Jobj[i], Pretty, Indent + 1);
+          count += 1;
+        }
+      }
+      if (Pretty === true &amp;&amp; count > 0) {
+        rstr += jIndent(Indent) + "[\n";
+        rstr += tstr;
+        if (tstr.trim() !== "") { rstr += "\n"; }
+        rstr += jIndent(Indent) + "]";
+      } else {
+        rstr += "[" + tstr + "]"
+      }
+    } else if (isObj(Jobj) || typeof(Jobj) === "object") {
+      for (key in Jobj) {
+        if (Jobj.hasOwnProperty(key) &amp;&amp; Jobj[key] !== undefined &amp;&amp; !isFunct(Jobj[key])) {
+          if (count > 0) { tstr += ","; }
+          if (Pretty === true &amp;&amp; count > 0) { tstr += "\n"; }
+          tstr += jIndent(Indent + 1) + "\"" + key + "\":";
+          tres = jStringify(Jobj[key], Pretty, Indent + 1);
+          if (Pretty === true &amp;&amp; startsWith(tres, "[]") === false &amp;&amp; startsWith(tres, "{}") === false &amp;&amp; (isArr(Jobj[key]) || ((isObj(Jobj[key]) || typeof(Jobj[key]) === "object") &amp;&amp; Jobj[key] !== null))) { tstr += "\n"; }
+          tstr += tres;
+          count += 1;
+        }
+      }
+      if (Pretty === true &amp;&amp; count > 0) {
+        rstr += jIndent(Indent) + "{\n";
+        rstr += tstr;
+        if (tstr.trim() !== "") { rstr += "\n"; }
+        rstr += jIndent(Indent) + "}";
+      } else {
+        rstr += "{" + tstr + "}"
+      }
+    } else if (isNumber(Jobj) || isBool(Jobj)) {
+      if (Pretty === true) { jIndent(Indent); }
+      rstr += "" + Jobj;
+    } else if (isFunct(Jobj.escapeJson)) {
+      rstr += "\"" + Jobj.escapeJson() + "\"";
+    }
+    return rstr;
+}
+
+/**
+ * Parses the JSON string and returns a Javascript object.
+ * @param Str Is a JSON encoded string.
+ * @returns A plain old Javascript object.
+ */
+function jParse(Str) {
+    var robj = JSON.parse(Str);
+    return robj;
+}
+
+/**
+ * Returns a string of tabs with the number equal to the integer
+ * provided as an argument.
+ * @param Indent Is an integer with the number of tab spaces to indent.
+ * @returns A string with tab characters.
+ */
+function jIndent(Indent) {
+    Indent = setDef(Indent, 0);
+    var istr = "";
+    for (var i = 0; i &lt; Indent; i += 1) { istr += "\t"; }
+    return istr;
+}
+
 /*
  * Extended native types.
  */
 
 /**
- * Shortcut for defining new member methods for any object. This 
+ * Shortcut for defining new member methods for any object. This
  * will add the function to the prototype.
  * &lt;br>&lt;br>
  * Standard way:
@@ -273,7 +364,7 @@ Function.prototype.p = function (MemberName, FunctionInstance) {
 };
 
 /**
- * Add object contains method. This method works for both JS objects 
+ * Add object contains method. This method works for both JS objects
  * and arrays.
  * @param Needle is the item to check for.
  * @return A boolean with true for contains and false for not.
@@ -283,11 +374,12 @@ Object.defineProperty(Object.prototype, 'contains', {
         if (Array.isArray(this)) { return (this.indexOf(Needle) > -1); }
         return this.hasOwnProperty(Needle);
     },
+    writable: true,
     enumerable: false
 });
 
 /**
- * Mixin method takes the source object and 
+ * Mixin method takes the source object and
  * combines it into the current object.
  * @param Source is the source object to mix in.
  * @return Object instance.
@@ -302,6 +394,7 @@ Object.defineProperty(Object.prototype, 'mixin', {
         }
         return this;
     },
+    writable: true,
     enumerable: false
 });
 
@@ -312,14 +405,11 @@ Object.defineProperty(Object.prototype, 'mixin', {
  * @param ShowMeths is a boolean with true for show methods and false for not.
  * @return A string of the object in JSON format.
  */
-Object.defineProperty(Object.prototype, 'toString', {
+Object.defineProperty(Object.prototype, 'jstr', {
     value : function (Pretty, ShowMeths) {
         var ret = "", mth;
-        if (Pretty) {
-            ret = JSON.stringify(this, undefined, 3);
-        } else {
-            ret = JSON.stringify(this);
-        }
+        Pretty = setDef(Pretty, true);
+        ret = jStringify(this, Pretty);
         if (ShowMeths) {
             ret += "\n";
             for (mth in this) {
@@ -330,26 +420,26 @@ Object.defineProperty(Object.prototype, 'toString', {
         }
         return ret;
     },
+    writable: true,
     enumerable: false
 });
 /*jslint forin:false */
 
 /**
- * Gets the number of properties in the object. This 
- * method uses hasOwnProperty to filter for just 
- * the properties.
+ * Gets the number of properties in the object.
  * @return An int with the number of properties.
  */
 Object.defineProperty(Object.prototype, 'length', {
     value : function () {
         var cnt = 0, key;
         for (key in this) {
-            if (this.hasOwnProperty(key)) {
+            if (isFunct(this[key]) === false) {
                 cnt += 1;
             }
         }
         return cnt;
     },
+    writable: true,
     enumerable: false
 });
 
@@ -362,12 +452,33 @@ Object.defineProperty(String.prototype, 'contains', {
     value : function (Str) {
         return this.indexOf(Str) !== -1;
     },
+    writable: true,
     enumerable: false
 });
 
 /**
- * Gets the item at the specified index. This 
- * can be used from Java as an accessor to get 
+ * Escapes special chars for packaging in a JSON string.
+ * @return A string with escaped characters.
+ */
+Object.defineProperty(String.prototype, 'escapeJson', {
+    value : function () {
+        return this
+        .replace(/[\"]/g, '\\"')
+        .replace(/[\/]/g, '\\/')
+        .replace(/[\b]/g, '\\b')
+        .replace(/[\f]/g, '\\f')
+        .replace(/[\n]/g, '\\n')
+        .replace(/[\r]/g, '\\r')
+        .replace(/[\t]/g, '\\t')
+      ;
+    },
+    writable: true,
+    enumerable: false
+});
+
+/**
+ * Gets the item at the specified index. This
+ * can be used from Java as an accessor to get
  * an item at the index.
  * @param Index is the index to get the item at.
  * @return A Javascript object at the index.
@@ -375,6 +486,20 @@ Object.defineProperty(String.prototype, 'contains', {
 Array.prototype.get = function (Index) {
     return this[Index];
 };
+
+/**
+ * Generic JS exception.
+ * @constructor
+ * @param Message is a string with the exception message.
+ * @param Name is a string with the exception name. (Optional)
+ */
+function Exception(Message, Name) {
+    BaseObj.call(this);
+    this.message = setDef(Message, "");
+    this.name = setDef(Name, "");
+}
+Exception.prototype = new BaseObj();
+Exception.prototype.constructor = Exception;
 </code></pre>
         </article>
     </section>
@@ -385,13 +510,13 @@ Array.prototype.get = function (Index) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="base64.html">base64</a></li><li><a href="BaseObj.html">BaseObj</a></li><li><a href="Browser.html">Browser</a></li><li><a href="Buffer.html">Buffer</a></li><li><a href="ByteArray.html">ByteArray</a></li><li><a href="Config.html">Config</a></li><li><a href="console.html">console</a></li><li><a href="Cookie.html">Cookie</a></li><li><a href="DirRec.html">DirRec</a></li><li><a href="file.html">file</a></li><li><a href="Ftp.html">Ftp</a></li><li><a href="FtpDirRec.html">FtpDirRec</a></li><li><a href="hex.html">hex</a></li><li><a href="Html.html">Html</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="HttpPart.html">HttpPart</a></li><li><a href="HttpServer.html">HttpServer</a></li><li><a href="HttpServerRequest.html">HttpServerRequest</a></li><li><a href="HttpServerResponse.html">HttpServerResponse</a></li><li><a href="HttpSession.html">HttpSession</a></li><li><a href="HttpWebsocket.html">HttpWebsocket</a></li><li><a href="Ic9Engine.html">Ic9Engine</a></li><li><a href="Ic9sh.html">Ic9sh</a></li><li><a href="Jdbc.html">Jdbc</a></li><li><a href="Ldap.html">Ldap</a></li><li><a href="Log.html">Log</a></li><li><a href="SavePoint.html">SavePoint</a></li><li><a href="Sftp.html">Sftp</a></li><li><a href="Sqlite.html">Sqlite</a></li><li><a href="Ssh.html">Ssh</a></li><li><a href="sys.html">sys</a></li><li><a href="Telnet.html">Telnet</a></li><li><a href="TestRunner.html">TestRunner</a></li><li><a href="TestSet.html">TestSet</a></li><li><a href="Thread.html">Thread</a></li><li><a href="Timer.html">Timer</a></li><li><a href="uuid.html">uuid</a></li><li><a href="WsCall.html">WsCall</a></li><li><a href="WsInterface.html">WsInterface</a></li><li><a href="WsSchemaNode.html">WsSchemaNode</a></li><li><a href="xml.html">xml</a></li></ul><h3>Namespaces</h3><ul><li><a href="ccolor.html">ccolor</a></li><li><a href="dataType.html">dataType</a></li><li><a href="holdability.html">holdability</a></li><li><a href="httpMethod.html">httpMethod</a></li><li><a href="ldapAuthType.html">ldapAuthType</a></li><li><a href="postType.html">postType</a></li><li><a href="threadState.html">threadState</a></li><li><a href="transIsolation.html">transIsolation</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$global">$global</a></li><li><a href="global.html#$ic9env">$ic9env</a></li><li><a href="global.html#$shell">$shell</a></li><li><a href="global.html#assert">assert</a></li><li><a href="global.html#assertArray">assertArray</a></li><li><a href="global.html#assertBool">assertBool</a></li><li><a href="global.html#assertFunction">assertFunction</a></li><li><a href="global.html#assertInt">assertInt</a></li><li><a href="global.html#assertNull">assertNull</a></li><li><a href="global.html#assertNumber">assertNumber</a></li><li><a href="global.html#assertObject">assertObject</a></li><li><a href="global.html#assertString">assertString</a></li><li><a href="global.html#ByteBuffer">ByteBuffer</a></li><li><a href="global.html#clearInterval">clearInterval</a></li><li><a href="global.html#clearTimeout">clearTimeout</a></li><li><a href="global.html#contains">contains</a></li><li><a href="global.html#getEngine">getEngine</a></li><li><a href="global.html#include">include</a></li><li><a href="global.html#isArr">isArr</a></li><li><a href="global.html#isBool">isBool</a></li><li><a href="global.html#isDef">isDef</a></li><li><a href="global.html#isFunct">isFunct</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObj">isObj</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#loadJar">loadJar</a></li><li><a href="global.html#loadJarsInPath">loadJarsInPath</a></li><li><a href="global.html#newBuffer">newBuffer</a></li><li><a href="global.html#newDate">newDate</a></li><li><a href="global.html#newHttpServerRequest">newHttpServerRequest</a></li><li><a href="global.html#newHttpServerResponse">newHttpServerResponse</a></li><li><a href="global.html#newHttpWebsocket">newHttpWebsocket</a></li><li><a href="global.html#newIc9sh">newIc9sh</a></li><li><a href="global.html#newJsList">newJsList</a></li><li><a href="global.html#newJsObject">newJsObject</a></li><li><a href="global.html#newSavePoint">newSavePoint</a></li><li><a href="global.html#print">print</a></li><li><a href="global.html#println">println</a></li><li><a href="global.html#setDef">setDef</a></li><li><a href="global.html#setInterval">setInterval</a></li><li><a href="global.html#setTimeout">setTimeout</a></li><li><a href="global.html#startsWith">startsWith</a></li><li><a href="global.html#toJavaList">toJavaList</a></li><li><a href="global.html#valueNodes">valueNodes</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Ant.html">Ant</a></li><li><a href="base64.html">base64</a></li><li><a href="BaseObj.html">BaseObj</a></li><li><a href="Buffer.html">Buffer</a></li><li><a href="ByteArray.html">ByteArray</a></li><li><a href="ByteBuffer.html">ByteBuffer</a></li><li><a href="Config.html">Config</a></li><li><a href="console.html">console</a></li><li><a href="Cookie.html">Cookie</a></li><li><a href="DirRec.html">DirRec</a></li><li><a href="Exception.html">Exception</a></li><li><a href="file.html">file</a></li><li><a href="Ftp.html">Ftp</a></li><li><a href="FtpDirRec.html">FtpDirRec</a></li><li><a href="Git.html">Git</a></li><li><a href="hash.html">hash</a></li><li><a href="hex.html">hex</a></li><li><a href="Html.html">Html</a></li><li><a href="HttpClient.html">HttpClient</a></li><li><a href="HttpPart.html">HttpPart</a></li><li><a href="HttpServer.html">HttpServer</a></li><li><a href="HttpServerRequest.html">HttpServerRequest</a></li><li><a href="HttpServerResponse.html">HttpServerResponse</a></li><li><a href="HttpSession.html">HttpSession</a></li><li><a href="HttpWebsocket.html">HttpWebsocket</a></li><li><a href="Ic9Engine.html">Ic9Engine</a></li><li><a href="Ic9sh.html">Ic9sh</a></li><li><a href="Ipm.html">Ipm</a></li><li><a href="Jar.html">Jar</a></li><li><a href="Javac.html">Javac</a></li><li><a href="Jdbc.html">Jdbc</a></li><li><a href="Ldap.html">Ldap</a></li><li><a href="Log.html">Log</a></li><li><a href="Mkdir.html">Mkdir</a></li><li><a href="Rmdir.html">Rmdir</a></li><li><a href="SavePoint.html">SavePoint</a></li><li><a href="Sftp.html">Sftp</a></li><li><a href="Sqlite.html">Sqlite</a></li><li><a href="Ssh.html">Ssh</a></li><li><a href="sys.html">sys</a></li><li><a href="Target.html">Target</a></li><li><a href="Telnet.html">Telnet</a></li><li><a href="TestRunner.html">TestRunner</a></li><li><a href="TestSet.html">TestSet</a></li><li><a href="Thread.html">Thread</a></li><li><a href="Timer.html">Timer</a></li><li><a href="udpPacket.html">udpPacket</a></li><li><a href="UdpSocket.html">UdpSocket</a></li><li><a href="uuid.html">uuid</a></li><li><a href="WsCall.html">WsCall</a></li><li><a href="WsInterface.html">WsInterface</a></li><li><a href="WsSchemaNode.html">WsSchemaNode</a></li><li><a href="xml.html">xml</a></li></ul><h3>Namespaces</h3><ul><li><a href="$ic9.valid.html">valid</a></li><li><a href="ccolor.html">ccolor</a></li><li><a href="dataType.html">dataType</a></li><li><a href="holdability.html">holdability</a></li><li><a href="httpMethod.html">httpMethod</a></li><li><a href="ldapAuthType.html">ldapAuthType</a></li><li><a href="postType.html">postType</a></li><li><a href="threadState.html">threadState</a></li><li><a href="transIsolation.html">transIsolation</a></li><li><a href="valueNodes.html">valueNodes</a></li></ul><h3>Global</h3><ul><li><a href="global.html#$global">$global</a></li><li><a href="global.html#$ic9">$ic9</a></li><li><a href="global.html#$ic9env">$ic9env</a></li><li><a href="global.html#$shell">$shell</a></li><li><a href="global.html#assert">assert</a></li><li><a href="global.html#assertArray">assertArray</a></li><li><a href="global.html#assertBool">assertBool</a></li><li><a href="global.html#assertFunction">assertFunction</a></li><li><a href="global.html#assertInt">assertInt</a></li><li><a href="global.html#assertNull">assertNull</a></li><li><a href="global.html#assertNumber">assertNumber</a></li><li><a href="global.html#assertObject">assertObject</a></li><li><a href="global.html#assertString">assertString</a></li><li><a href="global.html#clearInterval">clearInterval</a></li><li><a href="global.html#clearTimeout">clearTimeout</a></li><li><a href="global.html#contains">contains</a></li><li><a href="global.html#getEngine">getEngine</a></li><li><a href="global.html#include">include</a></li><li><a href="global.html#includeJar">includeJar</a></li><li><a href="global.html#includeJarsInPath">includeJarsInPath</a></li><li><a href="global.html#isArr">isArr</a></li><li><a href="global.html#isBool">isBool</a></li><li><a href="global.html#isDef">isDef</a></li><li><a href="global.html#isFunct">isFunct</a></li><li><a href="global.html#isNumber">isNumber</a></li><li><a href="global.html#isObj">isObj</a></li><li><a href="global.html#isString">isString</a></li><li><a href="global.html#jIndent">jIndent</a></li><li><a href="global.html#jParse">jParse</a></li><li><a href="global.html#jStringify">jStringify</a></li><li><a href="global.html#newBuffer">newBuffer</a></li><li><a href="global.html#newDate">newDate</a></li><li><a href="global.html#newHttpServerRequest">newHttpServerRequest</a></li><li><a href="global.html#newHttpServerResponse">newHttpServerResponse</a></li><li><a href="global.html#newHttpWebsocket">newHttpWebsocket</a></li><li><a href="global.html#newIc9sh">newIc9sh</a></li><li><a href="global.html#newJsList">newJsList</a></li><li><a href="global.html#newJsObject">newJsObject</a></li><li><a href="global.html#newSavePoint">newSavePoint</a></li><li><a href="global.html#print">print</a></li><li><a href="global.html#println">println</a></li><li><a href="global.html#setDef">setDef</a></li><li><a href="global.html#setInterval">setInterval</a></li><li><a href="global.html#setTimeout">setTimeout</a></li><li><a href="global.html#startsWith">startsWith</a></li><li><a href="global.html#toJavaList">toJavaList</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Jan 15 2016 17:25:08 GMT-0800 (PST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Jun 18 2016 23:11:47 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>

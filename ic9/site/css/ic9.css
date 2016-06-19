@@ -1,0 +1,28 @@
+body
+{
+	/* background-color: #333333; */
+	background-color: rgba(51, 51, 51, 0.2);
+	color: #EEEEEE;
+}
+
+/* other color: #daad86
+ dark color: #312c32
+ site: http://www.awwwards.com/trendy-web-color-palettes-and-material-design-color-schemes-tools.html*/
+.orange
+{
+	color: #FCDAA3;
+}
+
+.titleSection
+{
+	margin-top: 50px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 300;
+	text-align: center;
+}
+
+.logoImg
+{
+	height: 150px;
+}
