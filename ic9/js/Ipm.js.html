@@ -176,7 +176,8 @@ Ipm.prototype.initPackage = function () {
             dependencies: [],           // List of dependencies.
             devDependencies: [],        // List of dev/test dependencies.
             tests: [],                  // List of unit test files for package.
-            build: ""                   // Script that runs the build.
+            build: "",                  // Script that runs the build.
+            install: {}                 // Install copy instructions.
         };
         file.write("ipm.json", pkg.jstr());
     } else {
@@ -208,6 +209,14 @@ Ipm.prototype.installPackage = function () {
         if (!this.installed.contains(pkgObj.name)) {
             // Install the package from the temp dir.
             var pkgDir = this.installFromTempDir(pkgObj, tdir);
+
+            // Build should be ran here.
+
+            // Run install instructions.
+            if (isDef(pkgObj.install)) {
+              this.runInstallInstructions(pkgObj, pkgDir);
+            }
+
             var installInfo = {
                 type: "git-remote",
                 location: pkgUrl,
@@ -235,7 +244,7 @@ Ipm.prototype.installPackage = function () {
  * Lists the local packages.
  */
 Ipm.prototype.listLocalPackages = function () {
-    if (file.exists(".ipm/installed.json")) {
+    if (file.exists(".ipm" + sys.separator() + "installed.json")) {
         this.loadInstalled();
         console.log("\nLocal Packages:");
         for (var pkgName in this.installed) {
@@ -278,7 +287,7 @@ Ipm.prototype.checkIpmDir = function () {
  * @return A string with the newly created temp directory.
  */
 Ipm.prototype.cloneRemoteToTemp = function (pkgUrl) {
-    var tdir = ".ipm/" + uuid.get();
+    var tdir = ".ipm" + sys.separator() + uuid.get();
     console.info("Cloning repo '" + pkgUrl + "' to temp dir '" + tdir + "'.");
     var g = new Git();
     g.clone(pkgUrl, tdir);
@@ -292,7 +301,7 @@ Ipm.prototype.cloneRemoteToTemp = function (pkgUrl) {
  * @return A JS object with the package object.
  */
 Ipm.prototype.getPackageDefinition = function (tdir) {
-    var pkgdeffile = tdir + "/ipm.json";
+    var pkgdeffile = tdir + sys.separator() + "ipm.json";
     if (file.exists(pkgdeffile)) {
         var pkgObj = JSON.parse(file.read(pkgdeffile));
         console.info("Found ipm.json package definition file.");
@@ -322,6 +331,15 @@ Ipm.prototype.validatePackageDefinition = function (pkgObj) {
     if (isDef(pkgObj.keyWords) &amp;&amp; !isArr(pkgObj.keyWords)) { throw ("Package definition validation error. Param keyWords isn't an array."); }
     if (isDef(pkgObj.dependencies) &amp;&amp; !isArr(pkgObj.dependencies)) { throw ("Package definition validation error. Param dependencies isn't an array."); }
     if (isDef(pkgObj.devDependencies) &amp;&amp; !isArr(pkgObj.devDependencies)) { throw ("Package definition validation error. Param devDependencies isn't an array."); }
+    // Install
+    if (isDef(pkgObj.install) &amp;&amp; !isObj(pkgObj.install)) { throw ("Package definition validation error. Param install isn't an object."); }
+    if (isDef(pkgObj.install)) {
+      if (isDef(pkgObj.install.files) &amp;&amp; !isArr(pkgObj.install.files)) { throw ("Package definition validation error. Param install.files isn't an array."); }
+      for (var i = 0; i &lt; pkgObj.install.files.length; i += 1) {
+        var f = pkgObj.install.files[i];
+        if (!isString(f)) { throw ("Package definition validation error. Param install.files[" + i + "] isn't a string."); }
+      }
+    }
 };
 
 /**
@@ -332,7 +350,7 @@ Ipm.prototype.validatePackageDefinition = function (pkgObj) {
  * @return A string with the new package directory.
  */
 Ipm.prototype.installFromTempDir = function (pkgObj, tdir) {
-    var pkgDir = ".ipm/" + pkgObj.name;
+    var pkgDir = ".ipm" + sys.separator() + pkgObj.name;
     if (tdir.trim().startsWith("/") || pkgDir.startsWith("/")) { throw ("installFromTmpDir: Cannot move folder/files starting in '/'. Safety first."); }
     file.mv(tdir, pkgDir);
     return pkgDir;
@@ -343,8 +361,8 @@ Ipm.prototype.installFromTempDir = function (pkgObj, tdir) {
  * memory.
  */
 Ipm.prototype.loadInstalled = function () {
-    if (file.exists(".ipm/installed.json") &amp;&amp; !file.isDir(".ipm/installed.json")) {
-        this.installed = JSON.parse(file.read(".ipm/installed.json"));
+    if (file.exists(".ipm" + sys.separator() + "installed.json") &amp;&amp; !file.isDir(".ipm" + sys.separator() + "installed.json")) {
+        this.installed = JSON.parse(file.read(".ipm" + sys.separator() + "installed.json"));
     }
 };
 
@@ -353,10 +371,56 @@ Ipm.prototype.loadInstalled = function () {
  */
 Ipm.prototype.saveInstalled = function () {
     if (file.exists(".ipm") &amp;&amp; file.isDir(".ipm")) {
-        file.write(".ipm/installed.json", this.installed.jstr());
+        file.write(".ipm" + sys.separator() + "installed.json", this.installed.jstr());
     } else {
-        throw ("Failed to save file '.ipm/installed.json', directory .ipm doesn't exist or isn't a directory.");
+        throw ("Failed to save file '.ipm" + sys.separator() + "installed.json', directory .ipm doesn't exist or isn't a directory.");
     }
+};
+
+/**
+ * Processes the install section of the ipm.json file. This method
+ * coppies the files and directories listed in pkgObj.install.files list
+ * to the current directory.
+ * @param pkgObj is the package JS object.
+ * @param pkgDir is a string with the package directory. (ie .ipm/pkg-name)
+ */
+Ipm.prototype.runInstallInstructions = function (pkgObj, pkgDir) {
+  if (isDef(pkgObj.install.files)) {
+    for (var i = 0; i &lt; pkgObj.install.files.length; i += 1) {
+      var ToCopy = pkgObj.install.files[i];
+      if (ToCopy.trim() !== "" &amp;&amp; ToCopy.trim() !== sys.separator()) {
+        console.info("Install: Copying file '" + ToCopy + "'.");
+        this.copyPath(pkgDir + sys.separator() + ToCopy, ToCopy);
+      } else {
+        throw ("Ipm.runInstallInstructions(): Item '" + ToCopy + "' cannot be blank or '" + sys.separator() + "'.");
+      }
+    }
+  }
+};
+
+/**
+ * Coppies files and directories in the source path into the
+ * destination path. If directories are provided, this will recursively copy
+ * all the sub directories. Also, if the destination path doesn't exist it
+ * will be created.
+ * @param srcPath is a string with the source file or directory to copy.
+ * @param destPath is a string with the destination file or directory to copy.
+ */
+Ipm.prototype.copyPath = function (srcPath, destPath) {
+  if (file.exists(srcPath)) {
+    if (file.isDir(srcPath)) {
+      file.mkdirs(destPath);
+      var srcFiles = file.listDir(srcPath);
+      for (var i = 0; i &lt; srcFiles.length; i += 1) {
+        var fname = srcFiles[i];
+        this.copyPath(srcPath + sys.separator() + fname, destPath + sys.separator() + fname);
+      }
+    } else {
+      file.cp(srcPath, destPath);
+    }
+  } else {
+    throw ("Ipm.copyPath(): Cannot find source path '" + srcPath + "'.");
+  }
 };
 
 Ipm.prototype.constructor = Ipm;
@@ -376,7 +440,7 @@ Ipm.prototype.constructor = Ipm;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Jun 18 2016 23:11:47 GMT-0700 (PDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Jun 20 2016 21:04:18 GMT-0700 (PDT)
 </footer>
 
 <script> prettyPrint(); </script>
